@@ -21,11 +21,11 @@ def auth(certbot_validation, certbot_domain):
     print(f'certbot_validation={certbot_validation},certbot_domain={certbot_domain}')
     # 判断是否存在 存在则删除记录
     try:
-        logger.info("存在删除记录")
         if os.path.exists(f'/tmp/CERTBOT_{certbot_domain}/RECORD_ID'):
+            logger.info("存在删除记录")
             cleanup_hook.cleanup(certbot_domain)
     except Exception as e:
-        logger.error(e)
+        logger.error('添加记录失败',e)
 
     aliyun_dns = AliyunDns()
     directory = f'/tmp/CERTBOT_{certbot_domain}'

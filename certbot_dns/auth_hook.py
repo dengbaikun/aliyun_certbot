@@ -37,7 +37,7 @@ def auth(certbot_validation, certbot_domain):
     mk_dir(directory)
     with open(f'{directory}/RECORD_ID', 'w', encoding='utf-8') as f:
         f.write(record_id)
-    retry_count = 10
+    retry_count = 100
     while retry_count > 1:
         text = ''
         try:

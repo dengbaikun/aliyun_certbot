@@ -2,20 +2,21 @@
 import getopt
 import os
 import sys
-import json
-import time
 from certbot_dns.aliyun_dns import AliyunDns
-from utils.domain_name_tool import getTvalue
 from utils.logger import logger
 
 
 def cleanup(certbot_domain):
     print(f'certbot_domain={certbot_domain}')
-    with open(f'/tmp/CERTBOT_{certbot_domain}/RECORD_ID') as f:
+    record_id_file = f'/tmp/CERTBOT_{certbot_domain}/RECORD_ID'
+    if not os.path.exists(record_id_file):
+        logger.info(f'未发现待清理记录文件: {record_id_file}')
+        return
+    with open(record_id_file) as f:
         record_id = f.read()
     aliyun_dns = AliyunDns()
     aliyun_dns.del_dns_record(record_id)
-    os.remove(f'/tmp/CERTBOT_{certbot_domain}/RECORD_ID')
+    os.remove(record_id_file)
     logger.info(f"record_id:{record_id},删除改{record_id}dns成功")
 
 

@@ -4,9 +4,11 @@ import configparser
 
 class Config(object):
     def __init__(self, config_file='./config.ini'):
-        self._path = os.path.join(os.getcwd(), config_file)
+        # 默认按项目根目录定位配置文件，避免从其它 cwd 启动时读取失败
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        self._path = os.path.abspath(os.path.join(base_dir, config_file))
         if not os.path.exists(self._path):
-            raise FileNotFoundError("No such file: config.ini")
+            raise FileNotFoundError(f"No such file: {self._path}")
         self._config = configparser.ConfigParser()
         self._config.read(self._path, encoding='utf-8-sig')
         self._configRaw = configparser.RawConfigParser()

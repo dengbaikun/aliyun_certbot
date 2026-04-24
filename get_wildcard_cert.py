@@ -1,10 +1,12 @@
 #!/usr/bin/env python
+from pathlib import Path
 import subprocess
 from utils.config import global_config
 
 
 def get_wildcard_cert(domain):
     try:
+        project_root = Path(__file__).resolve().parent
         # Run Certbot command to obtain wildcard certificate
         command = [
             'certbot',
@@ -14,12 +16,11 @@ def get_wildcard_cert(domain):
             '-d', f'{domain}',
             '-d', f'*.{domain}',
             '--server', 'https://acme-v02.api.letsencrypt.org/directory',  # Use ACME v2 API endpoint
-            '--manual-auth-hook', '/opt/PythonProject/aliyun_certbot/certbot_dns/auth_hook.sh',
+            '--manual-auth-hook', str(project_root / 'certbot_dns' / 'auth_hook.sh'),
             # Script to automate DNS challenge
-            '--manual-cleanup-hook', '/opt/PythonProject/aliyun_certbot/certbot_dns/cleanup_hook.sh',
+            '--manual-cleanup-hook', str(project_root / 'certbot_dns' / 'cleanup_hook.sh'),
             # Script to clean up DNS challenge
-            '--config', '/opt/PythonProject/aliyun_certbot/cli.ini',
-            '-c', 'cli.ini',
+            '--config', str(project_root / 'cli.ini'),
         ]
         print(" ".join(command))
         subprocess.run(command, check=True)

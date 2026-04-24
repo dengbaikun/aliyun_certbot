@@ -25,13 +25,13 @@ def auth(certbot_validation, certbot_domain):
             logger.info("存在删除记录")
             cleanup_hook.cleanup(certbot_domain)
     except Exception as e:
-        logger.error('添加记录失败',e)
+        logger.exception(f'清理旧记录失败: {e}')
 
     aliyun_dns = AliyunDns()
     directory = f'/tmp/CERTBOT_{certbot_domain}'
     __letsencryptSubDomain = '_acme-challenge'
-    type = 'TXT'
-    response_json = aliyun_dns.add_dns_record(domain_name_re='_acme-challenge', domain_name=certbot_domain, type=type,
+    record_type = 'TXT'
+    response_json = aliyun_dns.add_dns_record(domain_name_re='_acme-challenge', domain_name=certbot_domain, record_type=record_type,
                                               value=certbot_validation)
     record_id = json.loads(response_json)['RecordId']
     mk_dir(directory)
@@ -43,12 +43,14 @@ def auth(certbot_validation, certbot_domain):
         try:
             text = domain_name_tool.getTvalue(f'{__letsencryptSubDomain}.{certbot_domain}')
         except Exception as e:
-            logger.info(f"获取{certbot_domain} txt记录失败:", e)
+            logger.info(f"获取{certbot_domain} txt记录失败: {e}")
         if text == certbot_validation:
             logger.info(f"{certbot_validation}:验证成功")
             break
         retry_count = retry_count - 1
         time.sleep(5)
+    else:
+        raise TimeoutError(f"DNS TXT 记录长时间未生效: {__letsencryptSubDomain}.{certbot_domain}")
 
 
 def main(args):
